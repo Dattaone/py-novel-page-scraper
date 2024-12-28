@@ -33,7 +33,10 @@ class WebScraper:
         for element in elements:
             link = element.find('a')
             if link and 'href' in link.attrs:
-                list_links.append(link['href'])
+                href = link['href']
+                if href.startswith('/'):
+                    href = f"https://www.royalroad.com{href}"    
+                list_links.append(href)
 
         return list_links
     
@@ -65,16 +68,6 @@ class WebScraper:
         else:
             raise Exception(f"Error en la traducción: {response.status_code}")
 
-    """ def translate_text(text):
-        url_translator = f"https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=es&dt=t&q={text}"
-
-
-        response = requests.get(url_translator)
-        if response.status_code == 200:
-            result = response.json()
-            return result[0][0][0]
-        else:
-            raise Exception(f"Error en la traducción: {response.status_code}") """
 
 def clean_text(text):
     """Elimina caracteres problemáticos y espacios adicionales."""
@@ -110,23 +103,21 @@ def chunk_text(text, max_length=5000):
     return chunks
 
 if __name__ == "__main__":
-    url = "https://dragontl.net/story/the-dragon/"
+    url = "https://www.royalroad.com/fiction/50328/the-hawkshaw-inheritance"
     scraper = WebScraper(url)
 
     if(scraper.fetch_page()):
-        links = scraper.extract_chapters_links("li")
+        links = scraper.extract_chapters_links("tr", "chapter-row")
         if not links:
             print("Error: La página de los links no ha sido cargada")
         else:
             conter = 0
             all_text = ""
             #Create document
-            
+            document = Document()
             for link in links:
                 conter += 1
 
-                if conter > 1:
-                    break
                 print(f"conter : {conter}")
 
                 if(conter % 10 == 0):
@@ -134,15 +125,20 @@ if __name__ == "__main__":
                     time.sleep(random.uniform(10,20))
 
                 #chapter title
+                """ 
                 scraper_title = WebScraper(link)
                 if(scraper_title.fetch_page()):
                     title_chapter = scraper_title.extract_chapter_text("h2","mbs_posts_title")
-                    #all_text += title_chapter
+                    document.add_heading(title_chapter, level=2)
+                    all_text += title_chapter     
+                """
 
                 #chapter text
                 scraper_chapter = WebScraper(link)
                 if(scraper_chapter.fetch_page()):
-                    text_chapter = scraper_chapter.extract_chapter_text("div","mbs_posts_text")
+                    text_chapter = scraper_chapter.extract_chapter_text("div","chapter-inner chapter-content")
+                    document.add_heading(f"chapter {conter}:", level=2)
+                    document.add_paragraph(text_chapter)
                     all_text += text_chapter
                     
                 else:
@@ -151,11 +147,12 @@ if __name__ == "__main__":
             if not all_text.strip():
                 print("Error: No hay texto para traducir.")
             else:
-                one_chunk = chunk_text(all_text)[0]
-                one_chunk = clean_text(one_chunk)
+                #one_chunk = chunk_text(all_text)[0]
+                #one_chunk = clean_text(one_chunk)
                 #print(f"fragmento: {one_chunk}")
+                print(all_text)
+                document.save("La herencia de Hawkshaw.docx")
                 
-
                 
 
                 # Guardar el texto traducido
