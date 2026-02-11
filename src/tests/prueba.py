@@ -1,5 +1,5 @@
-from keyboard_interface import KeyboardInterface
-from text_processor import TextProcessor
+from src.ui.keyboard_interface import KeyboardInterface
+from src.services.text_processor import TextProcessor
 
 import os
 import re

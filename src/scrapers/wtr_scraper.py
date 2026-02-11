@@ -1,4 +1,4 @@
-from base_scraper import BaseScraper
+from src.scrapers.base_scraper import BaseScraper
 from selenium.webdriver.common.by import By
 import logging
 import math
@@ -47,56 +47,40 @@ class WtrScraper(BaseScraper):
 
 
     def scrape(self, url, start=None, end=None):
-        max_retries = 3
-        attempt = 1
-        current_chapter = 1  # capítulo actual
-        
-        while attempt <= max_retries:
-            try:
-                logging.info(f"Intento {attempt}/{max_retries}...")
-                self.start_driver()
-                self.driver.get(url)
+        try:
+            self.start_driver()
+            self.driver.get(url)
 
-                # Se obtiene el último capítulo solo una vez
-                if attempt == 1:
-                    last_url = self.scrape_last_chapter()
-                    base_url = self.tp.get_base_url(url)
+            last_url = self.scrape_last_chapter()
+            base_url = self.tp.get_base_url(url)
 
-                # Continuar desde donde quedó
-                i = current_chapter
+            self.close_driver()
 
-                while True:
-                    chapter_url = f"{base_url}/chapter-{i}?service=web"
+            conter = 1
+            while not url == last_url:
+                try:
+                    self.start_driver()
+                    text = self.scrape_chapter()
                     
-                    self.driver.get(chapter_url)
-                    text = self.scrape_chapter(i)
+                except:
+                    pass
+                finally:
+                    pass
+                pass
+            
+            pass
+        except:
+            pass
 
+        try:
+            
+            pass
+        except:
+            pass
+        finally:
+            pass
 
-                    self.novel_text += text
-                    self.novel_text += "\n\n\n"
-
-                    # Si llegamos al final, terminamos todo
-                    if f"{base_url}/chapter-{i}" == last_url:
-                        self.close_driver()
-                        return self.novel_text
-
-                    
-                    i += 1  # próximo capítulo
-                    current_chapter = i  # guardamos progreso
-
-            except Exception as e:
-                logging.error(f"❌ Error en intento {attempt}: {e}")
-                self.close_driver()
-                self.wait_random()
-
-            else:
-                break
-
-        logging.error("🚨 Se agotaron los 3 intentos de reintento.")
-        return self.novel_text
-    
-
-        
+                
     def human_scroll_to_element(self, steps_range=(15, 40)):
         current_y = self.driver.execute_script("return window.scrollY || window.pageYOffset;")
         target_y = self.driver.execute_script("return document.body.scrollHeight;")

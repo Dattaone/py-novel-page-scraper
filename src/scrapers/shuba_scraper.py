@@ -1,6 +1,6 @@
 import logging
 from selenium.webdriver.common.by import By
-from base_scraper import BaseScraper
+from src.scrapers.base_scraper import BaseScraper
 
 class ShubaScraper(BaseScraper):
     """Scraper especializado para el sitio de Shuba."""
@@ -56,7 +56,7 @@ class ShubaScraper(BaseScraper):
             logging.info(f"Capítulo {int(num)} extraído.")
 
 
-    def scrape(self, url: str, start: int = 1, end: int= None):
+    def scrape(self, url: str, start: int = 1, end = None):
         """
         Extrae capítulos de una novela desde una página web de índice.
 
@@ -90,8 +90,8 @@ class ShubaScraper(BaseScraper):
 
 
             for _, link in enumerate(chapters[start-1:end], start):
-                self.wait_random()
                 self.driver.get(link)
+                self.wait_random(1.5,3.5)
 
                 text = self.scrape_chapter()
                 text = self.format_text(text)

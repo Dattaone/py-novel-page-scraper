@@ -9,7 +9,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from fake_useragent import UserAgent
-from text_processor import TextProcessor
+from src.services.text_processor import TextProcessor
 
 class BaseScraper:
     """Clase base con la lógica común para scrapers con Selenium."""
@@ -20,7 +20,13 @@ class BaseScraper:
         self.novel_text = ""
         self.tp = TextProcessor()
 
-    def find_chrome_version():
+    def get_novel_text(self):
+        return self.novel_text
+    
+    def set_novel_text(self, text):
+        self.novel_text = text
+
+    def find_chrome_version(self):
         
         key = winreg.OpenKey(
             winreg.HKEY_CURRENT_USER,
@@ -28,7 +34,7 @@ class BaseScraper:
         )
 
         version, _ = winreg.QueryValueEx(key, "version")
-        return version.split(".")[0]
+        return int(version.split(".")[0])
 
 
     def start_driver(self):
@@ -74,10 +80,10 @@ class BaseScraper:
         options.add_argument("--disable-extensions")
         options.add_argument("--disable-application-cache")
 
-        version = self.find_chrome_version()
+        chrome_version = self.find_chrome_version()
 
         
-        self.driver = uc.Chrome(options=options, version_main=version)
+        self.driver = uc.Chrome(options=options, version_main=chrome_version)
 
 
     def close_driver(self):
@@ -129,7 +135,7 @@ class BaseScraper:
 
             new_url = self.driver.current_url
             if old_url == new_url:
-                logging.warning("El clic no tuvo efecto - la URL no cambió.")
+                logging.warning("El click no tuvo efecto - la URL no cambió.")
                 return False
             
             return True

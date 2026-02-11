@@ -1,6 +1,6 @@
 import logging
 from selenium.webdriver.common.by import By
-from base_scraper import BaseScraper
+from src.scrapers.base_scraper import BaseScraper
 
 class ReadnovelScraper(BaseScraper):
     def scrape_list_chapters(self):

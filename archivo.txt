@@ -1,3 +1,0 @@
-Hola, este es un archivo de prueba.
-Cada línea tiene algo diferente.
-¡Python es genial!

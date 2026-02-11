@@ -1,4 +1,4 @@
-from base_scraper import BaseScraper
+from src.scrapers.base_scraper import BaseScraper
 from selenium.webdriver.common.by import By
 import logging
 import math

@@ -8,7 +8,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 from text_processor import TextProcessor
-from keyboard_interface import KeyboardInterface
+from src.ui.keyboard_interface import KeyboardInterface
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 

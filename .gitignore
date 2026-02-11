@@ -1,6 +1,21 @@
-# Documents
+# Documentos
 *.doc
 *.docx
-*.txt
 *.pdf
-*.md
+*.txt
+*.rtf
+*.odt
+
+# Resultados / output
+output/
+logs/
+*.log
+
+# Python
+__pycache__/
+*.pyc
+
+# Virtualenv
+venv/
+env/
+.env

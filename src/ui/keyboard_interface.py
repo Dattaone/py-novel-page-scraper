@@ -6,9 +6,10 @@ import sys
 from urllib.parse import urlparse
 
 class KeyboardInterface:
-    def __init__(self):
-        pass
 
+    def is_valid_url(self, url: str) -> bool:
+        parse = urlparse(url)
+        return bool(parse.scheme and parse.netloc)
 
     def get_input_url(
             self, 
@@ -26,10 +27,9 @@ class KeyboardInterface:
         """
         while True:
             url = input(statement).strip()
-            parsed = urlparse(url)
-            if all([parsed.scheme, parsed.netloc]):
-                break
-        return url
+            if self.is_valid_url(url):
+                return url
+                
 
 
     def get_input_filename(
