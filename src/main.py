@@ -12,38 +12,6 @@ from src.services.text_processor import TextProcessor
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 
-SCRAPERS = {
-    "shuba": {
-        "class": ShubaScraper,
-        "headless": False,
-        "needs_chapter_range": True,
-        "url_modifier": modify_shuba_url
-    },
-    "readnovel": {
-        "class": ReadnovelScraper,
-        "headless": True,
-        "needs_chapter_range": False,
-        "url_modifier": modify_readnovel_url
-    },
-    "wtr": {
-        "class": WtrScraper,
-        "headless": False,
-        "needs_chapter_range": False,
-        "url_modifier": None
-    },
-    "czbooks": {
-        "class": CzbookScraper,
-        "headless": False,
-        "needs_chapter_range": True,
-        "url_modifier": None
-    },
-    "doby": {
-        "class": DobyScraper,
-        "headless": True,
-        "needs_chapter_range": True,
-        "url_modifier": None
-    },
-}
 
 
 def get_user_input(needs_chapter_range=False, url_modifier=None):
@@ -86,23 +54,28 @@ def run_scraper(scraper_class, headless=True, needs_chapter_range=False, url_mod
         if not novel.strip():
             raise Exception("⚠️ El texto está vacío. No se creará el documento.")
         
-        # Guardar resultados
-        logging.info("Creando el Docx espere....")
-        tp.create_docx_from_text(novel, f"{filename}.docx")
-        
-        option = ki.horizontal_select("¿También quieres crear un archivo de texto?", ["No", "Si"])
-        if option == "Si":
-            tp.create_text_file(novel, f"{filename}.txt")
+        save_results(novel, filename)       
     except Exception as e:
         logging.error(f"❌ [Error en run_scraper]: {e}")
-        partial = scraper.get_novel_text()
-        if partial:
-            tp.create_text_file(partial, "novel_autosave.txt")
-            logging.warning("⚠️ Se guardó una copia de seguridad en 'novel_autosave.txt'.")
+        partial_novel = scraper.get_novel_text()
+        if partial_novel:
+            create_autosave(partial_novel)
     finally:
         if scraper and hasattr(scraper, "close_driver"):
             scraper.close_driver()
-    
+
+def save_results(novel, filename):
+    # Guardar resultados
+    logging.info("Creando el Docx espere....")
+    tp.create_docx_from_text(novel, f"{filename}.docx")
+
+    option = ki.horizontal_select("¿También quieres crear un archivo de texto?", ["No", "Si"])
+    if option == "Si":
+        tp.create_text_file(novel, f"{filename}.txt")
+
+def create_autosave(partial_novel):
+    tp.create_autosave_file(partial_novel)
+    logging.warning("⚠️ Se guardó una copia de seguridad en 'novel_autosave.txt'.")
 
 def modify_shuba_url(url: str) -> str:
     """Ajusta URLs que terminan en .html/.htm para Shuba."""
@@ -128,6 +101,40 @@ def main(ki: KeyboardInterface, tp: TextProcessor):
     
     config = SCRAPERS[option.lower()]
     run_scraper(**config)
+
+
+SCRAPERS = {
+    "shuba": {
+        "scraper_class": ShubaScraper,
+        "headless": False,
+        "needs_chapter_range": True,
+        "url_modifier": modify_shuba_url
+    },
+    "readnovel": {
+        "scraper_class": ReadnovelScraper,
+        "headless": True,
+        "needs_chapter_range": False,
+        "url_modifier": modify_readnovel_url
+    },
+    "wtr": {
+        "scraper_class": WtrScraper,
+        "headless": False,
+        "needs_chapter_range": False,
+        "url_modifier": None
+    },
+    "czbooks": {
+        "scraper_class": CzbookScraper,
+        "headless": False,
+        "needs_chapter_range": True,
+        "url_modifier": None
+    },
+    "doby": {
+        "scraper_class": DobyScraper,
+        "headless": True,
+        "needs_chapter_range": True,
+        "url_modifier": None
+    },
+}
 
 
 if __name__ == "__main__":

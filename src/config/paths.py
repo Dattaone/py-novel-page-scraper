@@ -1,10 +1,11 @@
-from pathlib import Path
 import sys
+from pathlib import Path
+
 
 APP_NAME = "Novel Scraper"
 
 def _is_frozen()->bool:
-    return hasattr(sys, "frozen", False)
+    return getattr(sys, "frozen", False)
 
 def _get_base_path()->Path:
     """
@@ -21,7 +22,7 @@ BASE_DIR = _get_base_path()
 
 #Salidas
 OUTPUT_DIR = BASE_DIR / "output"
-AUTO_SAVE_TXT = OUTPUT_DIR / "auto_save.txt"
+AUTO_SAVE_TXT = OUTPUT_DIR / "AUTO_SAVE"
 
 
 def ensure_dirs():

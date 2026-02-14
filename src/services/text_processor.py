@@ -4,6 +4,8 @@ import logging
 import requests
 from docx import Document
 from urllib.parse import urlparse, urlunparse
+from src.config.paths import OUTPUT_DIR, AUTO_SAVE_TXT
+from src.utils.time_utils import filename_timestamp
 
 class TextProcessor:
     """
@@ -113,6 +115,8 @@ class TextProcessor:
     # ----------------------------
     # 🔹 CREACIÓN Y LECTURA DE ARCHIVOS
     # ----------------------------
+
+
     def create_text_file(self, text, filename="texto.txt", encoding="utf-8"):
         """
         Crea un archivo de texto (.txt) con el contenido especificado.
@@ -122,17 +126,27 @@ class TextProcessor:
             if not text.strip():
                 logging.warning("⚠️ El texto está vacío. No se creará el documento.")
                 return False
+            
+            file_path = os.path.join(OUTPUT_DIR, filename)
 
-            if self.delete_if_exists(filename):
+            if self.delete_if_exists(file_path):
                 logging.info(f"Se sobrescribió el archivo existente: {filename}")
 
-            with open(filename, "w", encoding=encoding) as file:
+            with open(file_path, "w", encoding=encoding) as file:
                 file.write(text)
             logging.info(f"✅ Archivo de texto creado exitosamente: {filename}")
             return True
         except Exception as e:
             logging.error(f"❌ Error al crear el archivo de texto: {e}")
             return False
+        
+    def create_autosave_file(self, text, encoding="utf-8"):
+        try:
+            file_path = os.path.join(AUTO_SAVE_TXT, f"autosave[{filename_timestamp()}].txt")
+            with open(file_path, "w", encoding=encoding) as file:
+                file.write(text)
+        except Exception as e:
+            logging.error(f"❌ Error al crear el archivo de autoguardado: {e}")
         
     def read_txt_file(self, file_path):
         """ 
@@ -149,13 +163,13 @@ class TextProcessor:
                 logging.info(f"Error al leer el archivo con GBK: {e}")
                 return None
 
-    def delete_if_exists(self, filename):
+    def delete_if_exists(self, file_path):
         """
         Elimina un archivo existente antes de crear uno nuevo.
         Retorna True si lo eliminó, False si no existía.
         """
-        if os.path.exists(filename):
-            os.remove(filename)
+        if os.path.exists(file_path):
+            os.remove(file_path)
             return True
         return False
 
@@ -168,8 +182,10 @@ class TextProcessor:
             if not text.strip():
                 logging.warning("⚠️ El texto está vacío. No se creará el documento.")
                 return False
+            
+            file_path = os.path.join(OUTPUT_DIR, filename)
 
-            if self.delete_if_exists(filename):
+            if self.delete_if_exists(file_path):
                 logging.info(f"Se sobrescribió el archivo existente: {filename}")
 
             document = Document()
@@ -178,7 +194,7 @@ class TextProcessor:
                     document.add_heading(line, level=2)
                 else:
                     document.add_paragraph(line)
-            document.save(filename)
+            document.save(file_path)
             logging.info(f"✅ Documento guardado como {filename}")
             return True
         except Exception as e:
@@ -190,7 +206,8 @@ class TextProcessor:
         Extrae el texto de un archivo DOCX y lo devuelve como string.
         """
         try:
-            document = Document(filename)
+            file_path = os.path.join(OUTPUT_DIR, filename)
+            document = Document(file_path)
             text = "\n".join([p.text for p in document.paragraphs])
             return text
         except Exception as e:
